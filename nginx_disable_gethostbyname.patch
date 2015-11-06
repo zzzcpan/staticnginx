@@ -1,0 +1,241 @@
+diff --git a/src/core/ngx_inet.c b/src/core/ngx_inet.c
+index 2c84daf..d6218ca 100644
+--- a/src/core/ngx_inet.c
++++ b/src/core/ngx_inet.c
+@@ -942,163 +942,12 @@ ngx_parse_inet6_url(ngx_pool_t *pool, ngx_url_t *u)
+ }
+ 
+ 
+-#if (NGX_HAVE_GETADDRINFO && NGX_HAVE_INET6)
+-
+-ngx_int_t
+-ngx_inet_resolve_host(ngx_pool_t *pool, ngx_url_t *u)
+-{
+-    u_char               *p, *host;
+-    size_t                len;
+-    in_port_t             port;
+-    ngx_uint_t            i;
+-    struct addrinfo       hints, *res, *rp;
+-    struct sockaddr_in   *sin;
+-    struct sockaddr_in6  *sin6;
+-
+-    port = htons(u->port);
+-
+-    host = ngx_alloc(u->host.len + 1, pool->log);
+-    if (host == NULL) {
+-        return NGX_ERROR;
+-    }
+-
+-    (void) ngx_cpystrn(host, u->host.data, u->host.len + 1);
+-
+-    ngx_memzero(&hints, sizeof(struct addrinfo));
+-    hints.ai_family = AF_UNSPEC;
+-    hints.ai_socktype = SOCK_STREAM;
+-#ifdef AI_ADDRCONFIG
+-    hints.ai_flags = AI_ADDRCONFIG;
+-#endif
+-
+-    if (getaddrinfo((char *) host, NULL, &hints, &res) != 0) {
+-        u->err = "host not found";
+-        ngx_free(host);
+-        return NGX_ERROR;
+-    }
+-
+-    ngx_free(host);
+-
+-    for (i = 0, rp = res; rp != NULL; rp = rp->ai_next) {
+-
+-        switch (rp->ai_family) {
+-
+-        case AF_INET:
+-        case AF_INET6:
+-            break;
+-
+-        default:
+-            continue;
+-        }
+-
+-        i++;
+-    }
+-
+-    if (i == 0) {
+-        u->err = "host not found";
+-        goto failed;
+-    }
+-
+-    /* MP: ngx_shared_palloc() */
+-
+-    u->addrs = ngx_pcalloc(pool, i * sizeof(ngx_addr_t));
+-    if (u->addrs == NULL) {
+-        goto failed;
+-    }
+-
+-    u->naddrs = i;
+-
+-    i = 0;
+-
+-    /* AF_INET addresses first */
+-
+-    for (rp = res; rp != NULL; rp = rp->ai_next) {
+-
+-        if (rp->ai_family != AF_INET) {
+-            continue;
+-        }
+-
+-        sin = ngx_pcalloc(pool, rp->ai_addrlen);
+-        if (sin == NULL) {
+-            goto failed;
+-        }
+-
+-        ngx_memcpy(sin, rp->ai_addr, rp->ai_addrlen);
+-
+-        sin->sin_port = port;
+-
+-        u->addrs[i].sockaddr = (struct sockaddr *) sin;
+-        u->addrs[i].socklen = rp->ai_addrlen;
+-
+-        len = NGX_INET_ADDRSTRLEN + sizeof(":65535") - 1;
+-
+-        p = ngx_pnalloc(pool, len);
+-        if (p == NULL) {
+-            goto failed;
+-        }
+-
+-        len = ngx_sock_ntop((struct sockaddr *) sin, rp->ai_addrlen, p, len, 1);
+-
+-        u->addrs[i].name.len = len;
+-        u->addrs[i].name.data = p;
+-
+-        i++;
+-    }
+-
+-    for (rp = res; rp != NULL; rp = rp->ai_next) {
+-
+-        if (rp->ai_family != AF_INET6) {
+-            continue;
+-        }
+-
+-        sin6 = ngx_pcalloc(pool, rp->ai_addrlen);
+-        if (sin6 == NULL) {
+-            goto failed;
+-        }
+-
+-        ngx_memcpy(sin6, rp->ai_addr, rp->ai_addrlen);
+-
+-        sin6->sin6_port = port;
+-
+-        u->addrs[i].sockaddr = (struct sockaddr *) sin6;
+-        u->addrs[i].socklen = rp->ai_addrlen;
+-
+-        len = NGX_INET6_ADDRSTRLEN + sizeof("[]:65535") - 1;
+-
+-        p = ngx_pnalloc(pool, len);
+-        if (p == NULL) {
+-            goto failed;
+-        }
+-
+-        len = ngx_sock_ntop((struct sockaddr *) sin6, rp->ai_addrlen, p,
+-                            len, 1);
+-
+-        u->addrs[i].name.len = len;
+-        u->addrs[i].name.data = p;
+-
+-        i++;
+-    }
+-
+-    freeaddrinfo(res);
+-    return NGX_OK;
+-
+-failed:
+-
+-    freeaddrinfo(res);
+-    return NGX_ERROR;
+-}
+-
+-#else /* !NGX_HAVE_GETADDRINFO || !NGX_HAVE_INET6 */
+-
+ ngx_int_t
+ ngx_inet_resolve_host(ngx_pool_t *pool, ngx_url_t *u)
+ {
+-    u_char              *p, *host;
+-    size_t               len;
++    u_char              *p;
+     in_port_t            port;
+     in_addr_t            in_addr;
+-    ngx_uint_t           i;
+-    struct hostent      *h;
+     struct sockaddr_in  *sin;
+ 
+     /* AF_INET only */
+@@ -1108,60 +957,9 @@ ngx_inet_resolve_host(ngx_pool_t *pool, ngx_url_t *u)
+     in_addr = ngx_inet_addr(u->host.data, u->host.len);
+ 
+     if (in_addr == INADDR_NONE) {
+-        host = ngx_alloc(u->host.len + 1, pool->log);
+-        if (host == NULL) {
+-            return NGX_ERROR;
+-        }
+ 
+-        (void) ngx_cpystrn(host, u->host.data, u->host.len + 1);
+-
+-        h = gethostbyname((char *) host);
+-
+-        ngx_free(host);
+-
+-        if (h == NULL || h->h_addr_list[0] == NULL) {
+-            u->err = "host not found";
+-            return NGX_ERROR;
+-        }
+-
+-        for (i = 0; h->h_addr_list[i] != NULL; i++) { /* void */ }
+-
+-        /* MP: ngx_shared_palloc() */
+-
+-        u->addrs = ngx_pcalloc(pool, i * sizeof(ngx_addr_t));
+-        if (u->addrs == NULL) {
+-            return NGX_ERROR;
+-        }
+-
+-        u->naddrs = i;
+-
+-        for (i = 0; i < u->naddrs; i++) {
+-
+-            sin = ngx_pcalloc(pool, sizeof(struct sockaddr_in));
+-            if (sin == NULL) {
+-                return NGX_ERROR;
+-            }
+-
+-            sin->sin_family = AF_INET;
+-            sin->sin_port = port;
+-            sin->sin_addr.s_addr = *(in_addr_t *) (h->h_addr_list[i]);
+-
+-            u->addrs[i].sockaddr = (struct sockaddr *) sin;
+-            u->addrs[i].socklen = sizeof(struct sockaddr_in);
+-
+-            len = NGX_INET_ADDRSTRLEN + sizeof(":65535") - 1;
+-
+-            p = ngx_pnalloc(pool, len);
+-            if (p == NULL) {
+-                return NGX_ERROR;
+-            }
+-
+-            len = ngx_sock_ntop((struct sockaddr *) sin,
+-                                sizeof(struct sockaddr_in), p, len, 1);
+-
+-            u->addrs[i].name.len = len;
+-            u->addrs[i].name.data = p;
+-        }
++        u->err = "gethostbyname disabled for static build";
++        return NGX_ERROR;
+ 
+     } else {
+ 
+@@ -1199,8 +997,6 @@ ngx_inet_resolve_host(ngx_pool_t *pool, ngx_url_t *u)
+     return NGX_OK;
+ }
+ 
+-#endif /* NGX_HAVE_GETADDRINFO && NGX_HAVE_INET6 */
+-
+ 
+ ngx_int_t
+ ngx_cmp_sockaddr(struct sockaddr *sa1, socklen_t slen1,

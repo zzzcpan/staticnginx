@@ -1,0 +1,140 @@
+diff --git a/src/http/modules/perl/ngx_http_perl_module.c b/src/http/modules/perl/ngx_http_perl_module.c
+index 6a8894c..f827c3b 100644
+--- a/src/http/modules/perl/ngx_http_perl_module.c
++++ b/src/http/modules/perl/ngx_http_perl_module.c
+@@ -156,12 +156,67 @@ static ngx_uint_t        ngx_perl_term;
+ static PerlInterpreter  *perl;
+ #endif
+ 
+-
+ static void
+ ngx_http_perl_xs_init(pTHX)
+ {
+     newXS("DynaLoader::boot_DynaLoader", boot_DynaLoader, __FILE__);
+ 
++    newXS("B::bootstrap", boot_B, __FILE__);
++    newXS("Compress::Raw::Bzip2::bootstrap", boot_Compress__Raw__Bzip2, __FILE__);
++/* conflicts with zlib that nginx uses if unpatched */
++    newXS("Compress::Raw::Zlib::bootstrap", boot_Compress__Raw__Zlib, __FILE__); 
++    newXS("Cwd::bootstrap", boot_Cwd, __FILE__);
++    newXS("Data::Dumper::bootstrap", boot_Data__Dumper, __FILE__);
++    newXS("Devel::PPPort::bootstrap", boot_Devel__PPPort, __FILE__);
++    newXS("Devel::Peek::bootstrap", boot_Devel__Peek, __FILE__);
++    newXS("Digest::MD5::bootstrap", boot_Digest__MD5, __FILE__);
++    newXS("Digest::SHA::bootstrap", boot_Digest__SHA, __FILE__);
++    newXS("Encode::bootstrap", boot_Encode, __FILE__);
++    newXS("Encode::Byte::bootstrap", boot_Encode__Byte, __FILE__);
++    newXS("Encode::CN::bootstrap", boot_Encode__CN, __FILE__);
++    newXS("Encode::EBCDIC::bootstrap", boot_Encode__EBCDIC, __FILE__);
++    newXS("Encode::JP::bootstrap", boot_Encode__JP, __FILE__);
++    newXS("Encode::KR::bootstrap", boot_Encode__KR, __FILE__);
++    newXS("Encode::Symbol::bootstrap", boot_Encode__Symbol, __FILE__);
++    newXS("Encode::TW::bootstrap", boot_Encode__TW, __FILE__);
++    newXS("Encode::Unicode::bootstrap", boot_Encode__Unicode, __FILE__);
++    newXS("Fcntl::bootstrap", boot_Fcntl, __FILE__);
++    newXS("File::DosGlob::bootstrap", boot_File__DosGlob, __FILE__);
++    newXS("File::Glob::bootstrap", boot_File__Glob, __FILE__);
++    newXS("Filter::Util::Call::bootstrap", boot_Filter__Util__Call, __FILE__);
++    newXS("Hash::Util::bootstrap", boot_Hash__Util, __FILE__);
++    newXS("Hash::Util::FieldHash::bootstrap", boot_Hash__Util__FieldHash, __FILE__);
++    newXS("I18N::Langinfo::bootstrap", boot_I18N__Langinfo, __FILE__);
++    newXS("IO::bootstrap", boot_IO, __FILE__);
++    newXS("IPC::SysV::bootstrap", boot_IPC__SysV, __FILE__);
++    newXS("List::Util::bootstrap", boot_List__Util, __FILE__);
++    newXS("MIME::Base64::bootstrap", boot_MIME__Base64, __FILE__);
++    newXS("Math::BigInt::FastCalc::bootstrap", boot_Math__BigInt__FastCalc, __FILE__);
++    newXS("Opcode::bootstrap", boot_Opcode, __FILE__);
++    newXS("POSIX::bootstrap", boot_POSIX, __FILE__);
++    newXS("PerlIO::encoding::bootstrap", boot_PerlIO__encoding, __FILE__);
++    newXS("PerlIO::mmap::bootstrap", boot_PerlIO__mmap, __FILE__);
++    newXS("PerlIO::scalar::bootstrap", boot_PerlIO__scalar, __FILE__);
++    newXS("PerlIO::via::bootstrap", boot_PerlIO__via, __FILE__);
++    newXS("SDBM_File::bootstrap", boot_SDBM_File, __FILE__);
++    newXS("Socket::bootstrap", boot_Socket, __FILE__);
++    newXS("Storable::bootstrap", boot_Storable, __FILE__);
++    newXS("Sys::Hostname::bootstrap", boot_Sys__Hostname, __FILE__);
++    newXS("Sys::Syslog::bootstrap", boot_Sys__Syslog, __FILE__);
++    newXS("Tie::Hash::NamedCapture::bootstrap", boot_Tie__Hash__NamedCapture, __FILE__);
++    newXS("Time::HiRes::bootstrap", boot_Time__HiRes, __FILE__);
++    newXS("Time::Piece::bootstrap", boot_Time__Piece, __FILE__);
++    newXS("Unicode::Collate::bootstrap", boot_Unicode__Collate, __FILE__);
++    newXS("Unicode::Normalize::bootstrap", boot_Unicode__Normalize, __FILE__);
++    newXS("arybase::bootstrap", boot_arybase, __FILE__);
++    newXS("attributes::bootstrap", boot_attributes, __FILE__);
++    newXS("mro::bootstrap", boot_mro, __FILE__);
++    newXS("re::bootstrap", boot_re, __FILE__);
++    newXS("threads::bootstrap", boot_threads, __FILE__);
++    newXS("threads::shared::bootstrap", boot_threads__shared, __FILE__);
++
++    newXS("nginx::bootstrap", boot_nginx, __FILE__);
++
+     nginx_stash = gv_stashpv("nginx", TRUE);
+ }
+ 
+diff --git a/src/http/modules/perl/ngx_http_perl_module.h b/src/http/modules/perl/ngx_http_perl_module.h
+index 5e60b03..1520303 100644
+--- a/src/http/modules/perl/ngx_http_perl_module.h
++++ b/src/http/modules/perl/ngx_http_perl_module.h
+@@ -58,7 +58,61 @@ extern ngx_module_t  ngx_http_perl_module;
+ 
+ 
+ extern void boot_DynaLoader(pTHX_ CV* cv);
+-
++extern void boot_B (pTHX_ CV* cv);
++extern void boot_Compress__Raw__Bzip2 (pTHX_ CV* cv);
++/* conflicts with zlib that nginx uses if unpatched */
++extern void boot_Compress__Raw__Zlib (pTHX_ CV* cv);
++extern void boot_Cwd (pTHX_ CV* cv);
++extern void boot_Data__Dumper (pTHX_ CV* cv);
++extern void boot_Devel__PPPort (pTHX_ CV* cv);
++extern void boot_Devel__Peek (pTHX_ CV* cv);
++extern void boot_Digest__MD5 (pTHX_ CV* cv);
++extern void boot_Digest__SHA (pTHX_ CV* cv);
++extern void boot_Encode (pTHX_ CV* cv);
++extern void boot_Encode__Byte (pTHX_ CV* cv);
++extern void boot_Encode__CN (pTHX_ CV* cv);
++extern void boot_Encode__EBCDIC (pTHX_ CV* cv);
++extern void boot_Encode__JP (pTHX_ CV* cv);
++extern void boot_Encode__KR (pTHX_ CV* cv);
++extern void boot_Encode__Symbol (pTHX_ CV* cv);
++extern void boot_Encode__TW (pTHX_ CV* cv);
++extern void boot_Encode__Unicode (pTHX_ CV* cv);
++extern void boot_Fcntl (pTHX_ CV* cv);
++extern void boot_File__DosGlob (pTHX_ CV* cv);
++extern void boot_File__Glob (pTHX_ CV* cv);
++extern void boot_Filter__Util__Call (pTHX_ CV* cv);
++extern void boot_Hash__Util (pTHX_ CV* cv);
++extern void boot_Hash__Util__FieldHash (pTHX_ CV* cv);
++extern void boot_I18N__Langinfo (pTHX_ CV* cv);
++extern void boot_IO (pTHX_ CV* cv);
++extern void boot_IPC__SysV (pTHX_ CV* cv);
++extern void boot_List__Util (pTHX_ CV* cv);
++extern void boot_MIME__Base64 (pTHX_ CV* cv);
++extern void boot_Math__BigInt__FastCalc (pTHX_ CV* cv);
++extern void boot_Opcode (pTHX_ CV* cv);
++extern void boot_POSIX (pTHX_ CV* cv);
++extern void boot_PerlIO__encoding (pTHX_ CV* cv);
++extern void boot_PerlIO__mmap (pTHX_ CV* cv);
++extern void boot_PerlIO__scalar (pTHX_ CV* cv);
++extern void boot_PerlIO__via (pTHX_ CV* cv);
++extern void boot_SDBM_File (pTHX_ CV* cv);
++extern void boot_Socket (pTHX_ CV* cv);
++extern void boot_Storable (pTHX_ CV* cv);
++extern void boot_Sys__Hostname (pTHX_ CV* cv);
++extern void boot_Sys__Syslog (pTHX_ CV* cv);
++extern void boot_Tie__Hash__NamedCapture (pTHX_ CV* cv);
++extern void boot_Time__HiRes (pTHX_ CV* cv);
++extern void boot_Time__Piece (pTHX_ CV* cv);
++extern void boot_Unicode__Collate (pTHX_ CV* cv);
++extern void boot_Unicode__Normalize (pTHX_ CV* cv);
++extern void boot_arybase (pTHX_ CV* cv);
++extern void boot_attributes (pTHX_ CV* cv);
++extern void boot_mro (pTHX_ CV* cv);
++extern void boot_re (pTHX_ CV* cv);
++extern void boot_threads (pTHX_ CV* cv);
++extern void boot_threads__shared (pTHX_ CV* cv);
++
++extern void boot_nginx (pTHX_ CV* cv);
+ 
+ void ngx_http_perl_handle_request(ngx_http_request_t *r);
+ void ngx_http_perl_sleep_handler(ngx_http_request_t *r);

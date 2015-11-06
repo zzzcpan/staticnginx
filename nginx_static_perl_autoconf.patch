@@ -1,0 +1,21 @@
+diff --git a/auto/lib/perl/conf b/auto/lib/perl/conf
+index 2a1a3fe..91b71b1 100644
+--- a/auto/lib/perl/conf
++++ b/auto/lib/perl/conf
+@@ -40,7 +40,7 @@ if test -n "$NGX_PERL_VER"; then
+ 
+     ngx_perl_ldopts=`$NGX_PERL -MExtUtils::Embed -e ldopts`
+ 
+-    ngx_perl_dlext=`$NGX_PERL -MConfig -e 'print $Config{dlext}'`
++    ngx_perl_dlext="a"
+     ngx_perl_libdir="src/http/modules/perl/blib/arch/auto"
+     ngx_perl_module="$ngx_perl_libdir/nginx/nginx.$ngx_perl_dlext"
+ 
+@@ -60,6 +60,7 @@ if test -n "$NGX_PERL_VER"; then
+                          | sed -e 's/-arch x86_64 -arch i386//'`
+     fi
+ 
++    CORE_LINK="$CORE_LINK $NGX_OBJS/$ngx_perl_module"
+     CORE_LINK="$CORE_LINK $ngx_perl_ldopts"
+     LINK_DEPS="$LINK_DEPS $NGX_OBJS/$ngx_perl_module"
+ 

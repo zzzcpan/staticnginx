@@ -1,0 +1,40 @@
+diff --git a/auto/lib/zlib/make b/auto/lib/zlib/make
+index 7875ef6..2fd5297 100644
+--- a/auto/lib/zlib/make
++++ b/auto/lib/zlib/make
+@@ -52,7 +52,7 @@ END
+ 
+ $ZLIB/libz.a:	$NGX_MAKEFILE
+ 	cd $ZLIB \\
+-	&& \$(MAKE) distclean \\
++	&& if [ -f Makefile ]; then \$(MAKE) distclean; fi \\
+ 	&& \$(MAKE) -f win32/Makefile.gcc \\
+ 		CFLAGS="$ZLIB_OPT" CC="\$(CC)" \\
+ 		libz.a
+@@ -75,7 +75,7 @@ END
+ 
+ $ZLIB/libz.a:	$NGX_MAKEFILE
+ 	cd $ZLIB \\
+-	&& \$(MAKE) distclean \\
++	&& if [ -f Makefile ]; then \$(MAKE) distclean; fi \\
+ 	&& cp contrib/asm586/match.S . \\
+ 	&& CFLAGS="$ZLIB_OPT -DASMV" CC="\$(CC)" \\
+ 		./configure \\
+@@ -92,7 +92,7 @@ END
+ 
+ $ZLIB/libz.a:	$NGX_MAKEFILE
+ 	cd $ZLIB \\
+-	&& \$(MAKE) distclean \\
++	&& if [ -f Makefile ]; then \$(MAKE) distclean; fi \\
+ 	&& cp contrib/asm686/match.S . \\
+ 	&& CFLAGS="$ZLIB_OPT -DASMV" CC="\$(CC)" \\
+ 		./configure \\
+@@ -125,7 +125,7 @@ if [ $done = NO ]; then
+ 
+ $ZLIB/libz.a:	$NGX_MAKEFILE
+ 	cd $ZLIB \\
+-	&& \$(MAKE) distclean \\
++	&& if [ -f Makefile ]; then \$(MAKE) distclean; fi \\
+ 	&& CFLAGS="$ZLIB_OPT" CC="\$(CC)" \\
+ 		./configure \\
+ 	&& \$(MAKE) libz.a
