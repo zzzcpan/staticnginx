@@ -26,15 +26,18 @@
 NAME = staticnginx
 VERSION = 1.8.0.1
 
-# http://nginx.org/en/download.html
+# if you change some version here - do the same
+# in the checkupdates target at the bottom
+#
+NGINX_PAGE = "http://nginx.org/en/download.html"
 NGINX_URL = "http://nginx.org/download/nginx-1.8.0.tar.gz"
-# https://www.openssl.org/source/
+OPENSSL_PAGE = "https://www.openssl.org/source/"
 OPENSSL_URL = "https://www.openssl.org/source/openssl-1.0.1p.tar.gz"
-# http://www.cpan.org/src/README.html
+PERL_PAGE = "http://www.cpan.org/src/README.html"
 PERL_URL = "http://www.cpan.org/src/5.0/perl-5.20.3.tar.gz"
-# http://www.zlib.net/
+ZLIB_PAGE = "http://www.zlib.net/"
 ZLIB_URL = "http://sourceforge.net/projects/libpng/files/zlib/1.2.8/zlib-1.2.8.tar.gz"
-# http://www.pcre.org/
+PCRE_PAGE = "http://ftp.csx.cam.ac.uk/pub/software/programming/pcre/"
 PCRE_URL = "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.37.tar.gz"
 
 # temp copy of perl to fullfill release dir
@@ -164,4 +167,11 @@ clean:
 
 realclean: clean
 	rm *.tar.gz
+
+checkupdates:
+	sh chkupd.sh nginx-1.8.    .tar.gz 0  $(NGINX_PAGE)
+	sh chkupd.sh openssl-1.0.1 .tar.gz p  $(OPENSSL_PAGE)
+	sh chkupd.sh perl-5.20.    .tar.gz 3  $(PERL_PAGE)
+	sh chkupd.sh zlib-1.2.     .tar.gz 8  $(ZLIB_PAGE)
+	sh chkupd.sh pcre-8.       .tar.gz 37 $(PCRE_PAGE)
 
