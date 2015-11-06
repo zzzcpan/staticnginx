@@ -165,3 +165,6 @@ clean:
 	rm -rf $(NAME)-$(VERSION)
 	rm -rf $(NAME)-$(VERSION)-bin
 
+realclean: clean
+	rm *.tar.gz
+
