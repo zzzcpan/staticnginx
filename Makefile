@@ -70,6 +70,7 @@ tarball: \
 	mkdir $(NAME)-$(VERSION) \
 	  && cp -rp objs Makefile dwnlx.sh \
 	    README LICENSE *.patch $(NAME)-$(VERSION)/ \
+	  && rm -f $(NAME)-$(VERSION).tar.gz \
 	  && tar -czf $(NAME)-$(VERSION).tar.gz \
 	    $(NAME)-$(VERSION)/
 
@@ -162,7 +163,5 @@ objs/pcre/configure:
 clean:
 	rm -rf objs
 	rm -rf $(NAME)-$(VERSION)
-	rm -f $(NAME)-$(VERSION).tar.gz
 	rm -rf $(NAME)-$(VERSION)-bin
-	rm -f $(NAME)-$(VERSION)-bin.tar.gz
 
