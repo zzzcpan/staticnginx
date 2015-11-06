@@ -114,9 +114,6 @@ objs/nginx/objs/Makefile: \
 objs/nginx/configure:
 	sh dwnlx.sh objs nginx $(NGINX_URL) \
 	  && cd objs/nginx \
-	  && patch -p1 < ../../nginx_disable_gethostbyname.patch \
-	  && patch -p1 < ../../nginx_disable_getpwnam.patch \
-	  && patch -p1 < ../../nginx_disable_initgroups.patch \
 	  && patch -p1 < ../../nginx_ngx_http_referer_host_module.patch \
 	  && patch -p1 < ../../nginx_set_perl_openssl.patch \
 	  && patch -p1 < ../../nginx_static_perl_autoconf.patch \
