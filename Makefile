@@ -71,7 +71,7 @@ tarball: \
 		objs/pcre/configure \
 		objs/openssl/config
 	mkdir $(NAME)-$(VERSION) \
-	  && cp -rp objs Makefile dwnlx.sh \
+	  && cp -rp objs Makefile dwnlx.sh chkupd.sh \
 	    README LICENSE *.patch $(NAME)-$(VERSION)/ \
 	  && rm -f $(NAME)-$(VERSION).tar.gz \
 	  && tar -czf $(NAME)-$(VERSION).tar.gz \
