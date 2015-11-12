@@ -44,6 +44,7 @@ PCRE_URL = "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.37.tar.
 RELEASE_PERL = $(PWD)/objs/release/bin/perl
 RELEASE_PERL_SITEARCHEXP = `$(RELEASE_PERL) -MConfig -e 'print "$$Config{sitearchexp}/"'`
 RELEASE_PERL_ARCHLIBEXP = `$(RELEASE_PERL) -MConfig -e 'print "$$Config{archlibexp}/"'`
+RELEASE_PERL_PRIVLIBEXP = `$(RELEASE_PERL) -MConfig -e 'print "$$Config{privlibexp}/"'`
 
 all: objs/nginx/objs/nginx
 	
@@ -57,6 +58,7 @@ release: objs/nginx/objs/nginx objs/myperl/bin/perl
 	cp objs/nginx/objs/src/http/modules/perl/nginx.pm \
 		$(RELEASE_PERL_SITEARCHEXP)
 	rm -rf $(RELEASE_PERL_ARCHLIBEXP)/auto
+	rm -rf $(RELEASE_PERL_PRIVLIBEXP)/pod
 	rm -f $(RELEASE_PERL_ARCHLIBEXP)/CORE/libperl.a
 	rm objs/release/bin/perl
 	rm -rf $(NAME)-$(VERSION)-bin
