@@ -118,6 +118,7 @@ objs/nginx/configure:
 	sh dwnlx.sh objs nginx $(NGINX_URL) \
 	  && cd objs/nginx \
 	  && patch -p1 < ../../nginx_ngx_http_referer_host_module.patch \
+	  && patch -p1 < ../../nginx_limit_req_hires.patch \
 	  && patch -p1 < ../../nginx_set_perl_openssl.patch \
 	  && patch -p1 < ../../nginx_static_perl_autoconf.patch \
 	  && patch -p1 < ../../nginx_static_perl_bootstrap.patch \
